@@ -2,16 +2,12 @@ const puppeteer = require("puppeteer");
 const { urls } = require("./airplaneNTSBnumbers");
 const fs = require("fs");
 
-const commandLineArguments = process.argv.slice(2);
-const fileName = commandLineArguments[0];
-const reportNumberIndexStart = commandLineArguments[1];
-const reportNumberIndexEnd = commandLineArguments[2];
-const reportNumbers = urls.slice(reportNumberIndexStart, reportNumberIndexEnd);
-
 class Crawler {
-  constructor() {}
+  constructor(fileName) {
+    this.fileName = fileName;;
+  }
 
-  crawl() {
+  crawl(reportNumbers) {
     (async () => {
       console.log("running");
       const browser = await puppeteer.launch({ timeout: 0 });
@@ -21,15 +17,21 @@ class Crawler {
         console.log(url);
         try {
           await page.goto(url);
-          fs.writeFileSync(fileName, JSON.stringify(await this.execute(page)), {
-            flag: "a",
-          });
+          fs.writeFileSync(
+            this.fileName,
+            JSON.stringify(await this.execute(page)),
+            { flag: "a" }
+          );
         } catch (err) {
           await browser.close();
-          console.error(error);
+          console.log("ERROR: ", err);
+          reportNumbers = reportNumbers.slice(reportNumber);
+          this.crawl(reportNumbers);
         }
       }
-      await browser.close();
+      if (browser) {
+        await browser.close();
+      }
     })();
   }
 
@@ -95,4 +97,11 @@ class Crawler {
 }
 console.log("started");
 
-new Crawler().crawl();
+
+const commandLineArguments = process.argv.slice(2);
+const fileName = commandLineArguments[0];
+const reportNumberIndexStart = commandLineArguments[1];
+const reportNumberIndexEnd = commandLineArguments[2];
+const reportNumbers = urls.slice(reportNumberIndexStart, reportNumberIndexEnd);
+
+new Crawler(fileName).crawl(reportNumbers);
