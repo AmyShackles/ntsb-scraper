@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 out/
+ntsb-data/
+ntsb-data2/
+data/
