@@ -3,9 +3,10 @@ const { JSDOM } = require("jsdom");
 
 async function convertToJSON(directoryPath, jsonFileName) {
   const dir = await fs.promises.opendir(directoryPath);
+  let current = 1;
   for await (const file of dir) {
     const fileName = file.name;
-    console.log({ fileName });
+    console.log(current++);
     const page = fs.readFileSync(`${directoryPath}/${fileName}`).toString();
     await scrape(page, jsonFileName);
   }
